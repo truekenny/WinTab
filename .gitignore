@@ -1,0 +1,5 @@
+__history/
+*.dcu
+WinTab.dproj.local
+WinTab.identcache
+WinTab.stat
