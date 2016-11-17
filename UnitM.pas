@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, ShellApi;
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, ShellApi, IniFiles;
 
 const
   WM_ICONTRAY = WM_USER + 1;
@@ -33,7 +33,7 @@ var
   Frm: TFrm;
   inAngle: Boolean = False;
   inSide: Cardinal = 0;
-  inSideLimit: Cardinal = 500;
+  switchDesktopDelay: Cardinal = 500;
   sensitivityMouse: Integer = 5;
 
 implementation
@@ -56,7 +56,20 @@ begin
 end;
 
 procedure TFrm.FormCreate(Sender: TObject);
+var
+  ini: TIniFile;
 begin
+  ini := TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'config.ini');
+  try
+    switchDesktopDelay := ini.ReadInteger('Options', 'switchDesktopDelay.ms', 500);
+    sensitivityMouse := ini.ReadInteger('Options', 'sensitivityMouse.px', 5);
+
+    ini.WriteInteger('Options', 'switchDesktopDelay.ms', switchDesktopDelay);
+    ini.WriteInteger('Options', 'sensitivityMouse.px', sensitivityMouse);
+  finally
+    ini.Free;
+  end;
+
   with TrayIconData do
   begin
     cbSize :=  TNotifyIconData.SizeOf; // SizeOf(TrayIconData);
@@ -124,7 +137,7 @@ begin
     Exit;
   end;
 
-  if inSide < inSideLimit then begin
+  if inSide < switchDesktopDelay then begin
     inSide := inSide + Timer.Interval;
     Exit;
   end;
