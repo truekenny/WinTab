@@ -3,8 +3,9 @@ unit UnitM;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, ShellApi;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, ShellApi;
 
 const
   WM_ICONTRAY = WM_USER + 1;
@@ -21,6 +22,8 @@ type
   private
     { Private declarations }
     TrayIconData: TNotifyIconData;
+    function WinTab(): Boolean;
+    function CtrlWinArrow(): Boolean;
   public
     { Public declarations }
     procedure TrayMessage(var Msg: TMessage); message WM_ICONTRAY;
@@ -28,7 +31,10 @@ type
 
 var
   Frm: TFrm;
-  inAngle: Boolean;
+  inAngle: Boolean = False;
+  inSide: Cardinal = 0;
+  inSideLimit: Cardinal = 500;
+  sensitivityMouse: Integer = 5;
 
 implementation
 
@@ -51,8 +57,6 @@ end;
 
 procedure TFrm.FormCreate(Sender: TObject);
 begin
-  inAngle := False;
-
   with TrayIconData do
   begin
     cbSize :=  TNotifyIconData.SizeOf; // SizeOf(TrayIconData);
@@ -77,14 +81,16 @@ begin
   Close();
 end;
 
-procedure TFrm.TimerTimer(Sender: TObject);
+function TFrm.WinTab(): Boolean;
 begin
-  if Mouse.CursorPos.X < Screen.Width - 5 then begin
+  Result := False;
+
+  if Mouse.CursorPos.X < Screen.Width - sensitivityMouse then begin
     inAngle := False;
     Exit;
   end;
 
-  if Mouse.CursorPos.Y < Screen.Height - 5 then begin
+  if Mouse.CursorPos.Y < Screen.Height - sensitivityMouse then begin
     inAngle := False;
     Exit;
   end;
@@ -99,6 +105,53 @@ begin
   keybd_event(VK_TAB, 0, 0, 0);
   keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
   keybd_event(VK_TAB, 0, KEYEVENTF_KEYUP, 0);
+
+  Result := True;
+end;
+
+function TFrm.CtrlWinArrow(): Boolean;
+begin
+  Result := False;
+
+  if (Mouse.CursorPos.X > sensitivityMouse)
+  and (Mouse.CursorPos.X < Screen.Width - sensitivityMouse) then begin
+    inSide := 0;
+    Exit;
+  end;
+
+  if Mouse.CursorPos.Y > Screen.Height - sensitivityMouse then begin
+    inSide := 0;
+    Exit;
+  end;
+
+  if inSide < inSideLimit then begin
+    inSide := inSide + Timer.Interval;
+    Exit;
+  end;
+
+  inSide := 0;
+
+  keybd_event(VK_CONTROL, 0, 0, 0);
+  keybd_event(VK_LWIN, 0, 0, 0);
+
+  if Mouse.CursorPos.X < sensitivityMouse then begin
+    keybd_event(VK_LEFT, 0, 0, 0);
+    keybd_event(VK_LEFT, 0, KEYEVENTF_KEYUP, 0);
+  end else begin
+    keybd_event(VK_RIGHT, 0, 0, 0);
+    keybd_event(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
+  end;
+
+  keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
+  keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+
+  Result := True;
+end;
+
+procedure TFrm.TimerTimer(Sender: TObject);
+begin
+  if WinTab then Exit;
+  if CtrlWinArrow then Exit;
 end;
 
 end.
