@@ -137,6 +137,16 @@ begin
     Exit;
   end;
 
+  if GetAsyncKeyState(VK_LBUTTON) < 0 then begin
+    inSide := 0;
+    Exit;
+  end;
+
+  if GetAsyncKeyState(VK_RBUTTON) < 0 then begin
+    inSide := 0;
+    Exit;
+  end;
+
   if inSide < switchDesktopDelay then begin
     inSide := inSide + Timer.Interval;
     Exit;
