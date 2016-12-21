@@ -154,8 +154,8 @@ begin
 
   inSide := 0;
 
-  keybd_event(VK_CONTROL, 0, 0, 0);
   keybd_event(VK_LWIN, 0, 0, 0);
+  keybd_event(VK_CONTROL, 0, 0, 0);
 
   if Mouse.CursorPos.X < sensitivityMouse then begin
     keybd_event(VK_LEFT, 0, 0, 0);
@@ -165,8 +165,8 @@ begin
     keybd_event(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
   end;
 
-  keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
   keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+  keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
 
   Result := True;
 end;
