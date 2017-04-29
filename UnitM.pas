@@ -160,7 +160,9 @@ begin
   if Mouse.CursorPos.X < sensitivityMouse then begin
     keybd_event(VK_LEFT, 0, 0, 0);
     keybd_event(VK_LEFT, 0, KEYEVENTF_KEYUP, 0);
-  end else begin
+  end
+  else if Mouse.CursorPos.X > Screen.Width - sensitivityMouse then
+  begin
     keybd_event(VK_RIGHT, 0, 0, 0);
     keybd_event(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
   end;
